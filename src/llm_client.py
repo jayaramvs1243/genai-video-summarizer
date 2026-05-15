@@ -3,7 +3,10 @@ import ollama
 
 class OllamaClient:
 
-    PROMPT_TEMPLATE = "Provide a concise summary of the following video transcript:\n\n{transcript}"
+    # PROMPT_TEMPLATE = "Provide a concise summary of the following video transcript:\n\n{transcript}"
+    SYSTEM_PROMPT = "You are an expert AI assistant specializing in summarizing video content. Your task is to extract the main points, key takeaways, and provide a highly readable and concise summary."
+    USER_PROMPT_TEMPLATE = "Here is the transcript of the video:\n\n{transcript}\n\nPlease summarize this video."
+
 
     def __init__(self, host_url: str, model_name: str):
         self.host_url = host_url
@@ -12,10 +15,11 @@ class OllamaClient:
         self.base_url = f"{self.host_url}/api/generate"
 
     def summarize_with_requests(self, transcript: str) -> str:
-        prompt = self.PROMPT_TEMPLATE.format(transcript=transcript)
+        prompt = self.USER_PROMPT_TEMPLATE.format(transcript=transcript)
 
         payload = {
             "model": self.model_name,
+            "system": self.SYSTEM_PROMPT,
             "prompt": prompt,
             "stream": False
         }
@@ -27,7 +31,12 @@ class OllamaClient:
     
     def summarize_with_ollama_pkg(self, transcript: str) -> str:
         client = ollama.Client(host=self.host_url)
-        prompt = self.PROMPT_TEMPLATE.format(transcript=transcript)
+        prompt = self.USER_PROMPT_TEMPLATE.format(transcript=transcript)
 
-        response = client.generate(model=self.model_name, prompt=prompt, stream=False)
+        response = client.generate(
+            model=self.model_name,
+            system=self.SYSTEM_PROMPT,
+            prompt=prompt,
+            stream=False
+        )
         return response['response']
