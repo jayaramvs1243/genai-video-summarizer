@@ -1,5 +1,5 @@
+import json
 import argparse
-from src import llm_client
 from src.extractor import YouTubeExtractor
 from src.llm_client import OllamaClient
 
@@ -27,6 +27,10 @@ def main():
 
         transcript_summary = llm_client.summarize_with_ollama_pkg_system_prompt(transcript)
         print(f"\nSummary from the Ollama package (System Prompt):\n{transcript_summary}")
+
+        transcript_summary = llm_client.summarize_with_ollama_pkg_structured_response(transcript)
+        transcript_summary_json = json.loads(transcript_summary)
+        print(f"\nSummary from the Ollama package (Structured Response):\n{json.dumps(transcript_summary_json, indent=2)}")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
